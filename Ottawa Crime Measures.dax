@@ -1,0 +1,300 @@
+// ============================================================
+// Ottawa Crime Dashboard - DAX Measures
+// Adapted from Boston Crime Dashboard for 'Criminal Offences' table
+// ============================================================
+
+// --- Core Counts ---
+
+.Count of Crimes =
+    COUNT('Criminal Offences'[Type of Crime])
+
+
+.Violent Crimes =
+    CALCULATE (
+        COUNT ( 'Criminal Offences'[Type of Crime] ),
+        FILTER ( 'Criminal Offences', 'Criminal Offences'[Type of Crime] = "Violent" )
+    )
+
+
+.Major Crimes =
+    CALCULATE (
+        COUNT ( 'Criminal Offences'[Type of Crime] ),
+        FILTER ( 'Criminal Offences', 'Criminal Offences'[Type of Crime] = "Major" )
+    )
+
+
+// --- Duration & Averages ---
+
+.Date Diff Measure =
+    DATEDIFF(
+        MIN('Criminal Offences'[Occurred Date]),
+        MAX('Criminal Offences'[Occurred Date]),
+        DAY
+    )
+
+
+.Avg Duration =
+    AVERAGEX (
+        'Criminal Offences',
+        DATEDIFF (
+            MIN ( 'Criminal Offences'[Occurred Date] ),
+            MAX ( 'Criminal Offences'[Occurred Date] ),
+            DAY
+        )
+    )
+
+
+.Weeknum measure =
+    ROUNDDOWN ( [.Avg Duration] / 7, 0 )
+
+
+.Average crime per weekday =
+    DIVIDE ( [.Count of Crimes], [.Weeknum measure] )
+
+
+.Avg Date Diff Per Day =
+    DIVIDE([.Count of Crimes], [.Avg Duration])
+
+
+// --- Crime Rates ---
+
+.Violent Crime Rate =
+    DIVIDE([.Violent Crimes], [.Count of Crimes])
+
+
+.Major Crime Rate =
+    DIVIDE ( [.Major Crimes], [.Count of Crimes] )
+
+
+// --- Averages per Day ---
+
+.Violent Crimes average per Day =
+    AVERAGEX(
+        KEEPFILTERS(VALUES('Criminal Offences'[Occurred Date].[Day])),
+        CALCULATE([.Violent Crimes])
+    )
+
+
+.Major Crimes average per Day =
+    AVERAGEX(
+        KEEPFILTERS(VALUES('Criminal Offences'[Occurred Date].[Day])),
+        CALCULATE([.Major Crimes])
+    )
+
+
+// --- Average per Neighbourhood (equivalent to District) ---
+
+.Crime Rate average per Neighbourhood =
+    AVERAGEX(
+        KEEPFILTERS(VALUES('Criminal Offences'[Neighbourhood Name])),
+        CALCULATE([.Count of Crimes])
+    )
+
+
+.Violent Crime Rate average per Neighbourhood =
+    AVERAGEX(
+        KEEPFILTERS(VALUES('Criminal Offences'[Neighbourhood Name])),
+        CALCULATE([.Violent Crime Rate])
+    )
+
+
+// --- YoY% Measures ---
+
+.Count of Crimes YoY% =
+    IF(
+        ISFILTERED('Criminal Offences'[Occurred Date]),
+        ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+        VAR __PREV_YEAR =
+            CALCULATE(
+                [.Count of Crimes],
+                DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+            )
+        RETURN
+            DIVIDE([.Count of Crimes] - __PREV_YEAR, __PREV_YEAR)
+    )
+
+
+.Violent Crimes YoY% =
+    IF(
+        ISFILTERED('Criminal Offences'[Occurred Date]),
+        ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+        VAR __PREV_YEAR =
+            CALCULATE(
+                [.Violent Crimes],
+                DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+            )
+        RETURN
+            DIVIDE([.Violent Crimes] - __PREV_YEAR, __PREV_YEAR)
+    )
+
+
+.Major Crimes YoY% =
+    IF(
+        ISFILTERED('Criminal Offences'[Occurred Date]),
+        ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+        VAR __PREV_YEAR =
+            CALCULATE(
+                [.Major Crimes],
+                DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+            )
+        RETURN
+            DIVIDE([.Major Crimes] - __PREV_YEAR, __PREV_YEAR)
+    )
+
+
+.Violent Crime Rate YoY% =
+    IF(
+        ISFILTERED('Criminal Offences'[Occurred Date]),
+        ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+        VAR __PREV_YEAR =
+            CALCULATE(
+                [.Violent Crime Rate],
+                DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+            )
+        RETURN
+            DIVIDE([.Violent Crime Rate] - __PREV_YEAR, __PREV_YEAR)
+    )
+
+
+.Major Crime Rate YoY% =
+    IF(
+        ISFILTERED('Criminal Offences'[Occurred Date]),
+        ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+        VAR __PREV_YEAR =
+            CALCULATE(
+                [.Major Crime Rate],
+                DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+            )
+        RETURN
+            DIVIDE([.Major Crime Rate] - __PREV_YEAR, __PREV_YEAR)
+    )
+
+
+.Crimes average per Day YoY% =
+    IF(
+        ISFILTERED('Criminal Offences'[Occurred Date]),
+        ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+        VAR __PREV_YEAR =
+            CALCULATE(
+                [.Average crime per weekday],
+                DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+            )
+        RETURN
+            DIVIDE([.Average crime per weekday] - __PREV_YEAR, __PREV_YEAR)
+    )
+
+
+// --- YoY Diff Display Measures (with arrows) ---
+
+.Diffs Violent Crimes YOY =
+    SWITCH (
+        TRUE (),
+        [.Violent Crimes YoY%] < 0, UNICHAR ( 9660 ),
+        UNICHAR ( 9650 )
+    )
+        & ROUND ( [.Violent Crimes YoY%], 4 ) * 100 & " %"
+
+
+.Diffs Major Crimes YOY =
+    SWITCH ( TRUE (), [.Major Crimes YoY%] < 0, UNICHAR ( 9660 ), UNICHAR ( 9650 ) )
+        & ROUND ( [.Major Crimes YoY%], 4 ) * 100 & " %"
+
+
+.Diffs VCR YOY =
+    SWITCH (
+        TRUE (),
+        [.Violent Crime Rate YoY%] < 0, UNICHAR ( 9660 ),
+        UNICHAR ( 9650 )
+    )
+        & ROUND ( [.Violent Crime Rate YoY%], 4 ) * 100 & " %"
+
+
+.Diffs MCR YOY =
+    SWITCH (
+        TRUE (),
+        [.Major Crime Rate YoY%] < 0, UNICHAR ( 9660 ),
+        UNICHAR ( 9650 )
+    )
+        & ROUND ( [.Major Crime Rate YoY%], 4 ) * 100 & " %"
+
+
+// --- Color Measures ---
+
+.Color Measure =
+    IF (
+        'Criminal Offences'[.Violent Crime Rate] < .1846
+            && 'Criminal Offences'[.Major Crime Rate] < .3012,
+        "#008000",
+        IF (
+            'Criminal Offences'[.Violent Crime Rate] >= .1846
+                && 'Criminal Offences'[.Major Crime Rate] >= .3012,
+            "#FF0000",
+            IF (
+                'Criminal Offences'[.Violent Crime Rate] >= .1846
+                    && 'Criminal Offences'[.Major Crime Rate] <= .3012,
+                "#FF7F50",
+                "#FFFF00"
+            )
+        )
+    )
+
+
+.Color Measure for Columns =
+    IF ( [.Violent Crimes] > 0, "#1E5A8E", "#BD890F" )
+
+
+.Map color Measure =
+    IF (
+        [.Count of Crimes YoY%] <= 0,
+        "#008000",
+        IF (
+            [.Count of Crimes YoY%] > 0
+                && [.Count of Crimes YoY%] < .1,
+            "#FFFF00",
+            "#FF0000"
+        )
+    )
+
+
+// --- Slicer / Filter Display Measures ---
+
+.Offence Category Measure =
+    IF (
+        ISFILTERED ( 'Criminal Offences'[Offence Category]),
+        CONCATENATEX ( VALUES ( 'Criminal Offences'[Offence Category]), 'Criminal Offences'[Offence Category], ","),
+        "Select A Type of Crime "
+    )
+
+
+.Neighbourhood Name Measure =
+    IF (
+        ISFILTERED ( 'Criminal Offences'[Neighbourhood Name]),
+        CONCATENATEX ( VALUES ( 'Criminal Offences'[Neighbourhood Name]), 'Criminal Offences'[Neighbourhood Name], ","),
+        "Select A Neighbourhood "
+    )
+
+
+.Intersection Level Measure =
+    IF (
+        ISFILTERED ( 'Criminal Offences'[Intersection] ),
+        CONCATENATEX ( VALUES ( 'Criminal Offences'[Intersection]), 'Criminal Offences'[Intersection], ","),
+        "Select An Intersection "
+    )
+
+
+// --- Transparency / Conditional Display Measures ---
+
+Make Transparent Major Crime Rate =
+    If(IsBlank([.Major Crime Rate]), "VC Selected", [.Major Crime Rate])
+
+
+Make Transparent Major Crimes YOY% =
+    If(IsBlank([.Major Crimes YoY%]), "VC Selected", [.Diffs Major Crimes YOY])
+
+
+Make Transparent Violent Crime Rate =
+    If(IsBlank([.Violent Crime Rate]), "MC Selected", FORMAT([.Violent Crime Rate], "0.00%"))
+
+
+Make Transparent Violent Crimes YOY% =
+    If(IsBlank([.Violent Crimes YoY%]), "MC Selected", [.Diffs Violent Crimes YOY])
