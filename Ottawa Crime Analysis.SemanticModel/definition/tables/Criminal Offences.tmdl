@@ -5,6 +5,288 @@ table 'Criminal Offences'
 		formatString: 0
 		lineageTag: 45cd672b-dc16-4d40-a656-dc86d9f68bf7
 
+	measure 'Violent Crimes' =
+			CALCULATE (
+				COUNT ( 'Criminal Offences'[Type of Crime] ),
+				FILTER ( 'Criminal Offences', 'Criminal Offences'[Type of Crime] = "Violent" )
+			)
+		formatString: 0
+		lineageTag: a1b2c3d4-0001-4000-8000-000000000001
+
+	measure 'Major Crimes' =
+			CALCULATE (
+				COUNT ( 'Criminal Offences'[Type of Crime] ),
+				FILTER ( 'Criminal Offences', 'Criminal Offences'[Type of Crime] = "Major" )
+			)
+		formatString: 0
+		lineageTag: a1b2c3d4-0002-4000-8000-000000000002
+
+	measure 'Date Diff Measure' =
+			DATEDIFF(
+				MIN('Criminal Offences'[Occurred Date]),
+				MAX('Criminal Offences'[Occurred Date]),
+				DAY
+			)
+		formatString: 0
+		lineageTag: a1b2c3d4-0003-4000-8000-000000000003
+
+	measure 'Avg Duration' =
+			AVERAGEX (
+				'Criminal Offences',
+				DATEDIFF (
+					MIN ( 'Criminal Offences'[Occurred Date] ),
+					MAX ( 'Criminal Offences'[Occurred Date] ),
+					DAY
+				)
+			)
+		formatString: 0
+		lineageTag: a1b2c3d4-0004-4000-8000-000000000004
+
+	measure 'Weeknum measure' = ROUNDDOWN ( [Avg Duration] / 7, 0 )
+		formatString: 0
+		lineageTag: a1b2c3d4-0005-4000-8000-000000000005
+
+	measure 'Average crime per weekday' = DIVIDE ( [Count of Crimes], [Weeknum measure] )
+		formatString: 0.00
+		lineageTag: a1b2c3d4-0006-4000-8000-000000000006
+
+	measure 'Avg Date Diff Per Day' = DIVIDE([Count of Crimes], [Avg Duration])
+		formatString: 0.00
+		lineageTag: a1b2c3d4-0007-4000-8000-000000000007
+
+	measure 'Violent Crime Rate' = DIVIDE([Violent Crimes], [Count of Crimes])
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-0008-4000-8000-000000000008
+
+	measure 'Major Crime Rate' = DIVIDE ( [Major Crimes], [Count of Crimes] )
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-0009-4000-8000-000000000009
+
+	measure 'Violent Crimes average per Day' =
+			AVERAGEX(
+				KEEPFILTERS(VALUES('Criminal Offences'[Occurred Date].[Day])),
+				CALCULATE([Violent Crimes])
+			)
+		formatString: 0.00
+		lineageTag: a1b2c3d4-000a-4000-8000-000000000010
+
+	measure 'Major Crimes average per Day' =
+			AVERAGEX(
+				KEEPFILTERS(VALUES('Criminal Offences'[Occurred Date].[Day])),
+				CALCULATE([Major Crimes])
+			)
+		formatString: 0.00
+		lineageTag: a1b2c3d4-000b-4000-8000-000000000011
+
+	measure 'Crime Rate average per Neighbourhood' =
+			AVERAGEX(
+				KEEPFILTERS(VALUES('Criminal Offences'[Neighbourhood Name])),
+				CALCULATE([Count of Crimes])
+			)
+		formatString: 0.00
+		lineageTag: a1b2c3d4-000c-4000-8000-000000000012
+
+	measure 'Violent Crime Rate average per Neighbourhood' =
+			AVERAGEX(
+				KEEPFILTERS(VALUES('Criminal Offences'[Neighbourhood Name])),
+				CALCULATE([Violent Crime Rate])
+			)
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-000d-4000-8000-000000000013
+
+	measure 'Count of Crimes YoY%' =
+			IF(
+				ISFILTERED('Criminal Offences'[Occurred Date]),
+				ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+				VAR __PREV_YEAR =
+					CALCULATE(
+						[Count of Crimes],
+						DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+					)
+				RETURN
+					DIVIDE([Count of Crimes] - __PREV_YEAR, __PREV_YEAR)
+			)
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-000e-4000-8000-000000000014
+
+	measure 'Violent Crimes YoY%' =
+			IF(
+				ISFILTERED('Criminal Offences'[Occurred Date]),
+				ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+				VAR __PREV_YEAR =
+					CALCULATE(
+						[Violent Crimes],
+						DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+					)
+				RETURN
+					DIVIDE([Violent Crimes] - __PREV_YEAR, __PREV_YEAR)
+			)
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-000f-4000-8000-000000000015
+
+	measure 'Major Crimes YoY%' =
+			IF(
+				ISFILTERED('Criminal Offences'[Occurred Date]),
+				ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+				VAR __PREV_YEAR =
+					CALCULATE(
+						[Major Crimes],
+						DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+					)
+				RETURN
+					DIVIDE([Major Crimes] - __PREV_YEAR, __PREV_YEAR)
+			)
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-0010-4000-8000-000000000016
+
+	measure 'Violent Crime Rate YoY%' =
+			IF(
+				ISFILTERED('Criminal Offences'[Occurred Date]),
+				ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+				VAR __PREV_YEAR =
+					CALCULATE(
+						[Violent Crime Rate],
+						DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+					)
+				RETURN
+					DIVIDE([Violent Crime Rate] - __PREV_YEAR, __PREV_YEAR)
+			)
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-0011-4000-8000-000000000017
+
+	measure 'Major Crime Rate YoY%' =
+			IF(
+				ISFILTERED('Criminal Offences'[Occurred Date]),
+				ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+				VAR __PREV_YEAR =
+					CALCULATE(
+						[Major Crime Rate],
+						DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+					)
+				RETURN
+					DIVIDE([Major Crime Rate] - __PREV_YEAR, __PREV_YEAR)
+			)
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-0012-4000-8000-000000000018
+
+	measure 'Crimes average per Day YoY%' =
+			IF(
+				ISFILTERED('Criminal Offences'[Occurred Date]),
+				ERROR("Time intelligence quick measures can only be grouped or filtered by the Power BI-provided date hierarchy or primary date column."),
+				VAR __PREV_YEAR =
+					CALCULATE(
+						[Average crime per weekday],
+						DATEADD('Criminal Offences'[Occurred Date].[Date], -1, YEAR)
+					)
+				RETURN
+					DIVIDE([Average crime per weekday] - __PREV_YEAR, __PREV_YEAR)
+			)
+		formatString: 0.00%
+		lineageTag: a1b2c3d4-0013-4000-8000-000000000019
+
+	measure 'Diffs Violent Crimes YOY' =
+			SWITCH (
+				TRUE (),
+				[Violent Crimes YoY%] < 0, UNICHAR ( 9660 ),
+				UNICHAR ( 9650 )
+			)
+				& ROUND ( [Violent Crimes YoY%], 4 ) * 100 & " %"
+		lineageTag: a1b2c3d4-0014-4000-8000-000000000020
+
+	measure 'Diffs Major Crimes YOY' =
+			SWITCH ( TRUE (), [Major Crimes YoY%] < 0, UNICHAR ( 9660 ), UNICHAR ( 9650 ) )
+				& ROUND ( [Major Crimes YoY%], 4 ) * 100 & " %"
+		lineageTag: a1b2c3d4-0015-4000-8000-000000000021
+
+	measure 'Diffs VCR YOY' =
+			SWITCH (
+				TRUE (),
+				[Violent Crime Rate YoY%] < 0, UNICHAR ( 9660 ),
+				UNICHAR ( 9650 )
+			)
+				& ROUND ( [Violent Crime Rate YoY%], 4 ) * 100 & " %"
+		lineageTag: a1b2c3d4-0016-4000-8000-000000000022
+
+	measure 'Diffs MCR YOY' =
+			SWITCH (
+				TRUE (),
+				[Major Crime Rate YoY%] < 0, UNICHAR ( 9660 ),
+				UNICHAR ( 9650 )
+			)
+				& ROUND ( [Major Crime Rate YoY%], 4 ) * 100 & " %"
+		lineageTag: a1b2c3d4-0017-4000-8000-000000000023
+
+	measure 'Color Measure' =
+			IF (
+				'Criminal Offences'[Violent Crime Rate] < .1846
+					&& 'Criminal Offences'[Major Crime Rate] < .3012,
+				"#008000",
+				IF (
+					'Criminal Offences'[Violent Crime Rate] >= .1846
+						&& 'Criminal Offences'[Major Crime Rate] >= .3012,
+					"#FF0000",
+					IF (
+						'Criminal Offences'[Violent Crime Rate] >= .1846
+							&& 'Criminal Offences'[Major Crime Rate] <= .3012,
+						"#FF7F50",
+						"#FFFF00"
+					)
+				)
+			)
+		lineageTag: a1b2c3d4-0018-4000-8000-000000000024
+
+	measure 'Color Measure for Columns' = IF ( [Violent Crimes] > 0, "#1E5A8E", "#BD890F" )
+		lineageTag: a1b2c3d4-0019-4000-8000-000000000025
+
+	measure 'Map color Measure' =
+			IF (
+				[Count of Crimes YoY%] <= 0,
+				"#008000",
+				IF (
+					[Count of Crimes YoY%] > 0
+						&& [Count of Crimes YoY%] < .1,
+					"#FFFF00",
+					"#FF0000"
+				)
+			)
+		lineageTag: a1b2c3d4-001a-4000-8000-000000000026
+
+	measure 'Offence Category Measure' =
+			IF (
+				ISFILTERED ( 'Criminal Offences'[Offence Category]),
+				CONCATENATEX ( VALUES ( 'Criminal Offences'[Offence Category]), 'Criminal Offences'[Offence Category], ","),
+				"Select A Type of Crime "
+			)
+		lineageTag: a1b2c3d4-001b-4000-8000-000000000027
+
+	measure 'Neighbourhood Name Measure' =
+			IF (
+				ISFILTERED ( 'Criminal Offences'[Neighbourhood Name]),
+				CONCATENATEX ( VALUES ( 'Criminal Offences'[Neighbourhood Name]), 'Criminal Offences'[Neighbourhood Name], ","),
+				"Select A Neighbourhood "
+			)
+		lineageTag: a1b2c3d4-001c-4000-8000-000000000028
+
+	measure 'Intersection Level Measure' =
+			IF (
+				ISFILTERED ( 'Criminal Offences'[Intersection] ),
+				CONCATENATEX ( VALUES ( 'Criminal Offences'[Intersection]), 'Criminal Offences'[Intersection], ","),
+				"Select An Intersection "
+			)
+		lineageTag: a1b2c3d4-001d-4000-8000-000000000029
+
+	measure 'Make Transparent Major Crime Rate' = If(IsBlank([Major Crime Rate]), "VC Selected", [Major Crime Rate])
+		lineageTag: a1b2c3d4-001e-4000-8000-000000000030
+
+	measure 'Make Transparent Major Crimes YOY%' = If(IsBlank([Major Crimes YoY%]), "VC Selected", [Diffs Major Crimes YOY])
+		lineageTag: a1b2c3d4-001f-4000-8000-000000000031
+
+	measure 'Make Transparent Violent Crime Rate' = If(IsBlank([Violent Crime Rate]), "MC Selected", FORMAT([Violent Crime Rate], "0.00%"))
+		lineageTag: a1b2c3d4-0020-4000-8000-000000000032
+
+	measure 'Make Transparent Violent Crimes YOY%' = If(IsBlank([Violent Crimes YoY%]), "MC Selected", [Diffs Violent Crimes YOY])
+		lineageTag: a1b2c3d4-0021-4000-8000-000000000033
+
 	column OBJECTID
 		dataType: int64
 		formatString: 0
