@@ -1,0 +1,11 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/gitIntegration/platformProperties/2.0.0/schema.json",
+  "metadata": {
+    "type": "SemanticModel",
+    "displayName": "Ottawa Crime Analysis"
+  },
+  "config": {
+    "version": "2.0",
+    "logicalId": "ee3f97b7-030f-4715-847f-5744b25f0849"
+  }
+}

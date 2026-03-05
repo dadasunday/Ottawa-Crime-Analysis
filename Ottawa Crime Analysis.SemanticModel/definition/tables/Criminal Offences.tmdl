@@ -1,0 +1,232 @@
+table 'Criminal Offences'
+	lineageTag: ee50b853-88af-48b6-afac-8e9d5454b396
+
+	measure 'Count of Crimes' = COUNT('Criminal Offences'[Type of Crime])
+		formatString: 0
+		lineageTag: 45cd672b-dc16-4d40-a656-dc86d9f68bf7
+
+	column OBJECTID
+		dataType: int64
+		formatString: 0
+		lineageTag: 8f2a9656-5f7b-4db5-ad10-19181b672f5f
+		summarizeBy: count
+		sourceColumn: OBJECTID
+
+		annotation SummarizationSetBy = Automatic
+
+	column Year
+		dataType: int64
+		formatString: 0
+		lineageTag: 38dfafa6-d78d-44ce-bcc3-38e822cd89b9
+		summarizeBy: sum
+		sourceColumn: Year
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Reported Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: fb33a4ac-05dc-4bb8-a6c8-9c43a1f3f9dd
+		summarizeBy: none
+		sourceColumn: Reported Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Reported Hour'
+		dataType: double
+		formatString: 0
+		lineageTag: 45857d5b-2ccf-45a0-813e-d59b008656ca
+		summarizeBy: sum
+		sourceColumn: Reported Hour
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Occurred Date'
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 93af75b4-f857-4c3a-ac92-a9aa0c91d7cb
+		summarizeBy: none
+		sourceColumn: Occurred Date
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column 'Occurred Hour'
+		dataType: double
+		formatString: 0
+		lineageTag: 40e2712c-a6fa-4020-b8b6-185974677914
+		summarizeBy: sum
+		sourceColumn: Occurred Hour
+
+		annotation SummarizationSetBy = Automatic
+
+	column Weekday
+		dataType: string
+		lineageTag: 36cf7117-fa1b-4a63-b26b-f03ee09f9154
+		summarizeBy: none
+		sourceColumn: Weekday
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Offence Category'
+		dataType: string
+		lineageTag: de5a0623-4446-4222-99ab-280bc1723485
+		summarizeBy: none
+		sourceColumn: Offence Category
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Neighbourhood Name'
+		dataType: string
+		lineageTag: d4cc0200-9d09-47d2-a021-332f99af470e
+		summarizeBy: none
+		sourceColumn: Neighbourhood Name
+
+		annotation SummarizationSetBy = Automatic
+
+	column Sector
+		dataType: string
+		lineageTag: 05015720-cfbb-47d3-9b3d-fca5c0fdd915
+		summarizeBy: none
+		sourceColumn: Sector
+
+		annotation SummarizationSetBy = Automatic
+
+	column Division
+		dataType: string
+		lineageTag: f28267bc-1520-4b3c-b32b-a69e7a922c0e
+		summarizeBy: none
+		sourceColumn: Division
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Time of Day'
+		dataType: string
+		lineageTag: 2a554b2d-e00a-4c58-a5f1-6b2f60c4552d
+		summarizeBy: none
+		sourceColumn: Time of Day
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ward
+		dataType: string
+		lineageTag: 78457f1c-813a-46fe-91ff-ee4c3cfb2ccf
+		summarizeBy: none
+		sourceColumn: Ward
+
+		annotation SummarizationSetBy = Automatic
+
+	column Intersection
+		dataType: string
+		lineageTag: 7bc86551-0d55-4a24-8524-2f7dc781e78b
+		summarizeBy: none
+		sourceColumn: Intersection
+
+		annotation SummarizationSetBy = Automatic
+
+	column x
+		dataType: double
+		lineageTag: 62051526-8250-4edc-b31e-6556afeee156
+		summarizeBy: sum
+		sourceColumn: x
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column y
+		dataType: double
+		lineageTag: c01b596a-9ae2-47aa-9521-380de1e2f0b0
+		summarizeBy: sum
+		sourceColumn: y
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column 'Offence Summary'
+		dataType: string
+		lineageTag: 605f5b2d-d298-40cc-91ad-5bd99fad8305
+		summarizeBy: none
+		sourceColumn: Offence Summary
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Offence  Code'
+		dataType: int64
+		formatString: 0
+		lineageTag: e6a727cb-a563-4ad1-9477-22d129c1eb78
+		summarizeBy: count
+		sourceColumn: Offence  Code
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Type of Crime' = ```
+			
+			IF('Criminal Offences'[Offence  Code] < 800, "Violent",
+			    IF('Criminal Offences'[Offence  Code] > 800 && 
+			        'Criminal Offences'[Offence  Code] < 3000, "Major", 
+			        "Minor")
+			)
+			```
+		lineageTag: 0f2a7b80-358e-4b6f-be59-e4fcf4213642
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Weekday Number' = WEEKDAY('Criminal Offences'[Occurred Date].[Date],1)
+		lineageTag: e6f121dc-67e3-4f01-b904-441de9a1eda9
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Time By Hour' = TIME('Criminal Offences'[Occurred Hour],0,0)
+		formatString: hh:nn
+		lineageTag: 140047c6-d3a8-444b-8aaf-8b27145716fc
+		summarizeBy: none
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isDateTimeCustom":true}
+
+	column 'Duration Of Days' = ```
+			DATEDIFF(MIN('Criminal Offences'[Occurred Date]), 
+			                            MAX('Criminal Offences'[Occurred Date]), 
+			                            DAY
+			                            )
+			```
+		formatString: 0
+		lineageTag: 6dd819d9-6bba-484b-a448-df77afce62d0
+		summarizeBy: sum
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Criminal Offences' = m
+		mode: import
+		source =
+				let
+				    Source = Excel.Workbook(File.Contents("C:\Users\Dell\OneDrive\PowerBI Colaberry\Ottawa Crime Analysis\Criminal_Offences_Open_Data_5128551619143764270.xlsx"), null, true),
+				    #"Criminal Offences_Sheet" = Source{[Item="Criminal Offences",Kind="Sheet"]}[Data],
+				    #"Promoted Headers" = Table.PromoteHeaders(#"Criminal Offences_Sheet", [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"OBJECTID", Int64.Type}, {"Year", Int64.Type}, {"Reported Date", type datetime}, {"Reported Hour", Int64.Type}, {"Occurred Date", type datetime}, {"Occurred Hour", Int64.Type}, {"Weekday", type text}, {"Offence Summary", type text}, {"Offence Category", type text}, {"Neighbourhood Name", type text}, {"Sector", type text}, {"Division", type text}, {"Census Tract", type number}, {"Time of Day", type text}, {"Ward", type text}, {"Councillor", type text}, {"Intersection", type text}, {"x", type number}, {"y", type number}}),
+				    #"Removed Columns" = Table.RemoveColumns(#"Changed Type",{"Councillor"}),
+				    #"Removed Census Tract" = Table.RemoveColumns(#"Removed Columns",{"Census Tract"}),
+				    #"Changed Type1" = Table.TransformColumnTypes(#"Removed Census Tract",{{"Reported Date", type date}, {"Occurred Date", type date}, {"Reported Hour", Int64.Type}}),
+				    #"Divided Reported Hour" = Table.TransformColumns(#"Changed Type1", {{"Reported Hour", each _ / 100, type number}}),
+				    #"Divided Occured Hour" = Table.TransformColumns(#"Divided Reported Hour", {{"Occurred Hour", each _ / 100, type number}}),
+				    #"Filtered Rows" = Table.SelectRows(#"Divided Occured Hour", each true),
+				    #"Split Column by Delimiter" = Table.SplitColumn(#"Filtered Rows", "Offence Summary", Splitter.SplitTextByDelimiter("(", QuoteStyle.Csv), {"Offence Summary.1", "Offence Summary.2"}),
+				    #"Changed Type2" = Table.TransformColumnTypes(#"Split Column by Delimiter",{{"Offence Summary.1", type text}, {"Offence Summary.2", type text}}),
+				    #"Replaced Value" = Table.ReplaceValue(#"Changed Type2",")","",Replacer.ReplaceText,{"Offence Summary.2"}),
+				    #"Changed Type3" = Table.TransformColumnTypes(#"Replaced Value",{{"Offence Summary.2", Int64.Type}}),
+				    #"Renamed Columns" = Table.RenameColumns(#"Changed Type3",{{"Offence Summary.2", "Offence  Code"}, {"Offence Summary.1", "Offence Summary"}})
+				in
+				    #"Renamed Columns"
+
+	annotation PBI_NavigationStepName = Navigation
+
+	annotation PBI_ResultType = Table
+
